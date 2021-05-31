@@ -234,8 +234,25 @@
         data - If the mutation is in a success state, the data is available via the data property.
     In the example above, you also saw that you can pass variables to your mutations function by calling the mutate function with a single variable or object.
 
+# Mutation Side Effects
 
+    useMutation comes with some helper options that allow quick and easy side-effects at any stage during the mutation lifecycle. These come in handy for both invalidating and refetching queries after mutations and even optimistic updates
 
-
-
-
+        useMutation(addTodo, {
+            onMutate: variables => {
+                // A mutation is about to happen!
+            
+                // Optionally return a context containing data to use when for example rolling back
+                return { id: 1 }
+            },
+            onError: (error, variables, context) => {
+                // An error happened!
+                console.log(`rolling back optimistic update with id ${context.id}`)
+            },
+            onSuccess: (data, variables, context) => {
+                // Boom baby!
+            },
+            onSettled: (data, error, variables, context) => {
+                // Error or success... doesn't matter!
+            },
+        })

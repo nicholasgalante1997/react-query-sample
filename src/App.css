@@ -3,7 +3,7 @@
 }
 
 .App-logo {
-  height: 40vmin;
+  height: 20vmin;
   pointer-events: none;
 }
 
@@ -35,4 +35,32 @@
   to {
     transform: rotate(360deg);
   }
+}
+
+.action {
+  width: 400px;
+  height: 140px;
+  background-color: white;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  border-radius: 24px;
+  padding: 20px;
+}
+
+.button {
+  width: 100px;
+  height: 60px;
+}
+
+.cartoons {
+  width: 700px;
+  height: 150px;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-evenly;
+  align-items: center;
+  border-radius: 24px;
+  padding: 20px;
 }
