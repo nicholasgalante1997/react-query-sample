@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 /* eslint-disable no-shadow */
 /* eslint-disable react/prop-types */
 /* eslint-disable react/forbid-prop-types */
@@ -52,7 +53,7 @@ const packet = {
 };
 
 const updated = {
-  id: 4121,
+  id: 3613,
   data: {
     cartoon: {
       show: 'FUTURAMA',
@@ -118,7 +119,29 @@ function Content() {
   // // passing in the desired parameter
   const firePostMutation = async () => postMutation.mutate(packet);
 
-  const updateMutation = useMutation((updatedCartoon) => service._update(updatedCartoon));
+  const updateMutation = useMutation((updatedCartoon) => service._update(updatedCartoon), {
+    onMutate: async (newCartoon) => {
+      queryRef.cancelQueries('cartoons');
+      const current = queryRef.getQueryData('cartoons');
+      // OPTIMISTIC UPDATING OF VALUES
+      const { id } = newCartoon;
+      const refactor = current.filter((cartoon) => cartoon.id !== id);
+      queryRef.setQueryData('cartoons', (old) => [...refactor, newCartoon.data.cartoon]);
+
+      // return a context object with the old state of 'cartoons' in case of failure
+      return { existingState: current };
+    },
+    onError: (error, newCartoon, context) => {
+      // if there is an error we want to rollback the state of 'cartoons' to the previous state
+      // supplied by context
+      queryRef.setQueryData('cartoons', context.existingState);
+    },
+    onSuccess: (data, variables, context) => console.log('successful creation logged at'.concat(new Date().toString())),
+    onSettled: () => {
+      // always refetch after success or error to maintain congruity
+      queryRef.invalidateQueries('cartoons');
+    },
+  });
   const fireUpdateMutation = async () => updateMutation.mutate(updated);
 
   const deleteMutation = useMutation((id) => service._delete(id));
@@ -133,6 +156,7 @@ function Content() {
         { status === 'success'
           ? data.data.map((cartoon) => (
             <CartoonCard
+              key={cartoon.id}
               show={cartoon.show}
               creator={cartoon.creator}
               seasons={cartoon.seasons}
